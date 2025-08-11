@@ -1,0 +1,57 @@
+---
+# static inventory
+#
+# run
+# This command picks up the default inventory, inventory-localhost.yml
+#   ansible-playbook inventory-static.yml
+# These examples use four mock hosts.
+#   ansible-playbook -i inventory-static-inventory.yml inventory-static.yml
+#   ansible-playbook -i inventory-static-inventory.ini inventory-static.yml
+#
+# A static inventory file can contain data in two formats, YAML and INI. 
+# Plugins help Ansible decipher data in the file.
+# An inventory may be static or dynamic.
+# A static inventory is a list of hosts in a file.
+# A dynamic inventory is a program that produces a list of hosts. 
+# The playbook doesn't care about whether the inventory is static or dynamic. 
+# Compare this play with the one in inventory-dynamic.yml.
+# They are exactly the same.
+#
+# * INI - Microsoft's .ini style - the default and by far the most common
+# * YAML - does the same job but with dictionaries, lists and indentation
+#
+# inventory file fails
+# There is no plugin for JSON or TOML. 
+# If you try this, you will see errors like this.
+#   Failed to parse <inventory file> with <plugin> plugin
+# Ansible's plugin helpers fail to read these files.
+#   ansible-playbook -i inventory-static-inventory.json inventory-static.yml
+#   ansible-playbook -i inventory-static-inventory.toml inventory-static.yml
+#
+# convert from one format to another 
+# from INI to YAML
+#   ansible-inventory --inventory inventory-static-inventory.ini --list --yaml
+# from INI to TOML
+# requires optional Python library "toml"
+#   ansible-inventory --inventory inventory-static-inventory.ini --list --toml
+# from YAML to JSON
+#   ansible-inventory --inventory inventory-static-inventory.yml --list
+# 
+# mock hosts
+# This playbook runs on host1, host2, host3 and host4. 
+# Or at least it looks like it does -  we don't really have many machines.
+# Connection trickery points all host names to localhost.
+# Have a look at the inventory to see the "ansible_connection: local" line.
+# For more information, see "Connecting to hosts: behavioral inventory parameters".
+# https://docs.ansible.com/ansible/latest/user_guide/intro_inventory.html#connecting-to-hosts-behavioral-inventory-parameters
+#
+- hosts: all
+  gather_facts: no
+  become: no
+  tasks: 
+
+  
+  - name: display inventory hostname
+    debug: 
+      msg: "I am {{ inventory_hostname }}"
+

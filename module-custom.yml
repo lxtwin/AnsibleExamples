@@ -1,0 +1,43 @@
+# use a simple custom module
+# run
+#  ANSIBLE_LIBRARY=module-custom  ansible-playbook module-custom.yml 
+# read the documentation
+#  ANSIBLE_LIBRARY=module-custom  ansible-doc my_echo
+#
+# This playbook uses a custom module called my_echo.
+# You can see this module here: 
+#    module-custom/my_echo.py
+# (that's module-custom with a hyphen and my_echo with an underscore)
+# The my_echo module displays a value set in the task below.
+# The module contains very little Python code and documentation.
+#
+# The ANSIBLE_LIBRARY environment variable tells the playbook where to look for the module.
+# For more information on how ANSIBLE_LIBRARY works, see this playbook.
+#   lookup-config.yml
+
+- hosts: localhost
+  connection: local
+  gather_facts: no
+  tasks:
+
+  - name: This is how Ansible set the ANSIBLE_LIBRARY path.
+    debug: 
+      msg: "DEFAULT_MODULE_PATH: {{ lookup('config', 'DEFAULT_MODULE_PATH')}}"
+
+  - name: This module has no arguments. It displays "hello world"
+    my_hello: 
+    register: r_my_hello
+
+  # display the result so we can see STDOUT
+  - debug: 
+      var: r_my_hello
+
+  - name: This one does. And it has documentation. Echo something on STDOUT. 
+    my_echo: 
+      say_this: Hello again!
+    register: r_my_echo
+
+  # display the result
+  - debug: 
+      var: r_my_echo
+

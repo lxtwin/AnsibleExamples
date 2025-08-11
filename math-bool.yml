@@ -1,0 +1,87 @@
+---
+# run
+#   ansible-playbook math-bool.yml
+#
+# Uses boolean values, but not boolean algebra.
+# For a description of boolean algebra and logic gates, see
+# https://en.wikipedia.org/wiki/Boolean_algebra
+#
+# For more tasks, see:
+# * var-bool.yml                       - what counts as a boolean True or False
+# * math-bool.yml                      - equals, not equals, greater than, and lower than
+# * conditional-when.yml               - the when clause is an equivalence test
+# * conditional-when-empty-strings.yml - equivalence with ""
+# * conditional-when-null-string.yml   - equivalence with Null and None
+#
+
+- name: boolean comparisons
+  hosts: localhost
+  gather_facts: no
+  become: no
+  connection: local
+  tasks:
+
+  # integer
+  - debug:
+      msg: "equality, 1 == 1 is {{ 1 == 1 }}" 
+  - debug:
+      msg: "equality, 1 == 2 is {{ 1 == 2 }}" 
+  - debug:
+      msg: "equality, 1 != 1 is {{ 1 != 1 }}" 
+  - debug:
+      msg: "equality, 1 != 2 is {{ 1 != 2 }}" 
+  - debug:
+      msg: "greater than, 1 > 2 is {{ 1 > 2 }}" 
+  - debug:
+      msg: "greater than or equal to, 1 >= 2 is {{ 1 >= 2 }}" 
+  - debug:
+      msg: "lower than, 1 < 2 is {{ 1 < 2 }}" 
+  - debug:
+      msg: "lower than or equal to, 1 <= 2 is {{ 1 <= 2 }}" 
+  - debug:
+      msg: 'equality with type conversion, "1"|int == 1 is {{ "1"|int == 1 }}'
+
+  # when clause
+  # lots more examples elsewhere. 
+  # See conditional-when.yml
+  - debug:     
+      msg: "equality, 1 == 1"
+    when: 1 == 1
+
+  # set and dictionary
+  - debug:
+      msg: 'equality with set, 1 in [1, 3, 4] is {{ 1 in [1, 3, 4] }}'
+  - debug:
+      msg: 'equality with set, 2 in [1, 3, 4] is {{ 2 in [1, 3, 4] }}'
+  - debug:
+      msg: 'equality with dict key, "one" in {"one": 1, "three": 3, "four": 4} is {{ "one" in {"one": 1, "three": 3, "four": 4} }}'
+  - debug:
+      msg: 'equality with dict key, "two" in {"one": 1, "three": 3, "four": 4} is {{ "two" in {"one": 1, "three": 3, "four": 4} }}'
+  - debug:
+      msg: 'gotcha! equality with dict value, 1 in {"one": 1, "three": 3, "four": 4} is {{ 1 in {"one": 1, "three": 3, "four": 4} }}'
+      
+
+  # float
+  - debug:
+      msg: "equality, 1.0 == 1.0 is {{ 1.0 == 1.0 }}" 
+  # string
+  - debug:
+      msg: 'equality, "abc" == "abc" is {{ "abc" == "abc" }}' 
+  - debug:
+      msg: 'gotcha! True is a string, not a boolean value, "abc" == True is {{ "abc" == True }}' 
+
+
+  # gotchas for devs 
+  # These are not the equivalent of true and false. 
+  # You can rewrite these with a variable and "when" clause.
+  # See conditional-when.yml
+  - debug:
+      msg: 'gotcha! 1 is defined() is {{ 1 is defined() }}' 
+  - debug:
+      msg: 'gotcha! 0 is defined() is {{ 0 is defined() }}' 
+  - debug:
+      msg: 'gotcha! "string" is defined() is {{ "string" is defined() }}' 
+  - debug:
+      msg: 'gotcha! "" is defined() is {{ "" is defined() }}' 
+
+

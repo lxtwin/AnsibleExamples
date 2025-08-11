@@ -1,0 +1,58 @@
+---
+# loop
+#
+# run
+# ansible-playbook directive-loop.yml 
+#
+- name: Loop Register Test
+  hosts: localhost 
+  gather_facts: no
+  become: no
+  connection: local
+  tasks:
+
+# repeat one task
+
+    - name: loop with list
+      debug:
+        msg: item "{{ item }}"
+      loop:
+        - one
+        - two
+        - three
+
+    - name: A similar task, with "echo". stdout is captured in r_echo.
+      shell: "echo This is my item: {{ item }}"
+      loop:
+        - one
+        - two
+        - three
+      register: r_echo
+
+    - name: Show what the shell module captured, from r_echo.results[0].stdout to r_echo.results[2].stdout  
+      debug:
+        msg: "results is a list of items, and the items include stdout. first: '{{ r_echo.results[0].stdout }}', second: '{{ r_echo.results[1].stdout }}', third: '{{ r_echo.results[2].stdout }}'"
+
+# repeat many tasks 
+
+    # you can't loop a block like this.
+    # This causes a compile error. 
+    #   ERROR! 'loop' is not a valid attribute for a Block
+    #
+    #- block:
+    #
+    #  - name: loop in a block
+    #    debug:
+    #      msg: item "{{ item }}"
+    #
+    #  loop:
+    #  - one
+    #  - two
+    #  - three
+
+    - name: loop with include_tasks
+      include_tasks: directive-loop-tasks.yml
+      loop:
+        - one
+        - two
+        - three

@@ -1,0 +1,8 @@
+# a few SSHD configuration settings
+# see 
+#   man sshd_config
+#
+#
+Include /etc/ssh/sshd_config.d/*.conf
+AuthorizedKeysFile	.ssh/authorized_keys
+# 

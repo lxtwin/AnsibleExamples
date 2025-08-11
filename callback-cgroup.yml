@@ -1,0 +1,50 @@
+# run 
+#   sudo dnf install libcgroup-tools
+#   sudo cgcreate -a nick:nick -t nick:nick -g cpuacct,memory,pids:ansible_profile
+#   cgexec -g cpuacct,memory,pids:ansible_profile ansible-playbook callback-cgroup.yml 
+# 
+#
+# config 
+#
+# ansible.cfg
+# [defaults]
+# callback_whitelist=cgroup_perf_recap
+# 
+# [callback_cgroup_perf_recap]
+# control_group=ansible_profile
+#
+# 
+# doc
+# ansible-doc -t callback cgroup_perf_recap
+#
+#
+# errors 
+# on a fedora31 VM
+#
+# [ansible]$ sudo cgcreate -a nick:nick -t nick:nick -g cpuacct,memory,pids:ansible_profile
+# [sudo] password for nick:
+# cgcreate: libcgroup initialization failed: Cgroup is not mounted
+# [ansible]$
+#
+# [ansible]$ cgexec -g cpuacct,memory,pids:ansible_profile  ansible-playbook -i inv-list-inventory.yml inv-list.yml
+# libcgroup initialization failed: Cgroup is not mounted
+# [ansible]$
+# 
+# [ansible]$ ansible-playbook -i inv-list-inventory.yml inv-list.yml
+# [WARNING]: Cannot open /sys/fs/cgroup/memory/ansible_profile/memory.max_usage_in_bytes for reading ([Errno 2] No such file or
+# directory: b'/sys/fs/cgroup/memory/ansible_profile/memory.max_usage_in_bytes'). Disabling cgroup_perf_recap
+#
+#
+---
+- name: cgroup test
+  hosts: localhost 
+  gather_facts: no
+  become: no
+  connection: local
+  tasks:
+
+
+  - name: The task is not important. It's the performance stats we want to see.
+    debug:
+      msg: "hello world"
+

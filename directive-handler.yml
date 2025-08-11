@@ -1,0 +1,105 @@
+---
+# a handler is a special task
+#
+# run
+# ansible-playbook directive-handler.yml
+#
+# Ansible is often used to update a service, by changing a config file and restarting the server.
+# A "handler" - a special task that only runs when it is notified of changes - does the hard work. 
+# A task notifies the handler using a directive called "notify".
+#
+# This playbook contains three plays.
+# The first play runs two tasks 
+# Both tasks notify "play handler" that something has changed. 
+# The handler task "play handler" doesn't do much - it displays a message. 
+#
+# Handlers are called by plays, not the playbook.
+# Each play runs its own handler once, at the end. 
+# To prove this works, 
+#  * all handlers in this playbook have the same name, and 
+#  * all tasks have identical "play handler" lines. 
+#
+# For more information, see this page. 
+# https://docs.ansible.com/ansible/latest/user_guide/playbooks_handlers.html
+#
+# Usually the "tasks" section is listed before the "handlers" section, but order doesn't matter.
+# Each play is a dictionary - a collection of keys and values. 
+# The order of dictionary keys does not matter. 
+# In play 3, the "handlers" section is above the "tasks" section.
+#
+- name: play 1
+  hosts: localhost 
+  gather_facts: no
+  become: no
+  connection: local
+  vars:
+    playbook_var: playbook_val
+
+  tasks: 
+  - name: task 1 in play 1
+    debug: 
+      msg: This is task 1, play 1
+    changed_when: true
+    notify: play handler
+
+  - name: task 2 in play 1
+    debug: 
+      msg: This is task 2, play 1
+    changed_when: true
+    notify: play handler
+
+  handlers: 
+  - name: play handler
+    debug:
+      msg: I am the play 1 handler 
+
+
+- name: play 2
+  hosts: localhost 
+  gather_facts: no
+  become: no
+  connection: local
+
+  tasks: 
+  - name: task 1 in play 2
+    debug:
+      msg: This is task 1, play 2
+    changed_when: true
+    notify: play handler
+
+  - name: task 2 in play 2
+    debug:
+      msg: This is task 2, play 2
+    changed_when: true
+    notify: play handler
+
+  handlers:
+  - name: play handler
+    debug:
+      msg: I am the play 2 handler
+
+
+- name: play 3
+  hosts: localhost 
+  gather_facts: no
+  become: no
+  connection: local
+
+  handlers:
+  - name: play handler
+    debug:
+      msg: I am the play 3 handler
+
+  tasks:
+  - name: task 1 in play 3
+    debug:
+      msg: This is task 1, play 3
+    changed_when: true
+    notify: play handler
+
+  - name: task 2 in play 3
+    debug:
+      msg: This is task 2, play 3
+    changed_when: true
+    notify: play handler
+

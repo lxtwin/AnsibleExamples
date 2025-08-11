@@ -1,0 +1,25 @@
+---
+# dynamic inventory
+#
+# run
+# ansible-playbook -i inventory-dynamic-inventory.sh inventory-dynamic.yml
+#
+# If ansible is given an inventory file that is executable, ansible tries to run it.
+# The executable produces JSON that ansible can use.
+# The playbook doesn't care about whether the inventory is static or dynamic. 
+# Compare this play with the one in inventory-static.yml.
+# They are exactly the same.
+# 
+# See this playbook for lots more information.  
+#  ansible-static.yml
+#
+- hosts: all
+  gather_facts: no
+  become: no
+  tasks: 
+
+  
+  - name: display inventory hostname
+    debug: 
+      msg: "I am {{ inventory_hostname }}"
+

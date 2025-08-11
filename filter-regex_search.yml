@@ -1,0 +1,74 @@
+---
+# regex_search 
+# run
+#   ansible-playbook -i inventory-localhost.yml filter-regex_search.yml
+#
+# The filters match() and regex_search() are similar.
+# match returns a boolean value.
+# regex_search returns the matched string.
+#
+# ansible regex filters that return text 
+#    regex_replace
+#    regex_escape
+#    regex_search
+#    regex_findall
+# ansible regex filters that return bool
+#    match
+#    regex
+#
+# See
+# https://docs.ansible.com/ansible/latest/user_guide/playbooks_filters.html#searching-strings-with-regular-expressions
+# source 
+# https://github.com/ansible/ansible/blob/stable-2.9/lib/ansible/plugins/filter/core.py
+# For a description of the regular expression language, see
+# https://docs.python.org/3/library/re.html
+#
+#
+
+- name: regex_search filter
+  hosts: localhost 
+  gather_facts: no
+  become: no
+  connection: local
+  vars:
+    found: no
+  tasks:
+
+  - name: simple regex - plain text only. returns the matched text, not a boolean true or yes
+    debug:
+      msg: "{{ 'foobar' | regex_search('bar') }}"
+
+  - name: match failure returns nothing
+    debug:
+      msg: "{{ 'foobar' | regex_search('nope') }}"
+
+  - name: character class regex match. "\w" matches one word character. Requires an extra backslash \.
+    debug:
+      msg: "{{ 'foobar' | regex_search('\\w') }}"
+
+  - name: more complicated regex match. "\w+" matches one or more word characters.
+    debug:
+      msg: "{{ 'foobar' | regex_search('\\w+') }}"
+
+  - name: something similar with "\d" for digits and "\D" for not-digits.
+    debug:
+      msg: "{{ 'foo123bar456baz789' | regex_search('\\d+\\D+') }}"
+      
+  - name: Brackets "( ... )" store matches. Store the first two sets of digits in a list
+    debug:
+      msg: "{{ 'foo123bar456baz789' | regex_search('(\\d+)\\D+(\\d+)', '\\1', '\\2') }}"
+
+  - name: with a "when" conditional 
+    vars:
+      my_match: "{{ 'foobar' | regex_search('bar') }}"
+    debug:
+      msg: I found what I was looking for
+    when: my_match == 'bar'
+
+  - name: with a "when" conditional and "!=" (not equal to)
+    vars:
+      my_match: "{{ 'foobar' | regex_search('bar') }}"
+    debug:
+      msg: I did not find what I was looking for
+    when: my_match != 'bar'
+

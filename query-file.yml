@@ -1,0 +1,38 @@
+---
+# run
+#   AAP1
+#   ansible-playbook -i inventory-localhost.yml query-file.yml
+#   AAP2
+# doc
+#   AAP1
+#   ansible-doc -t lookup file
+#   AAP2
+#   ansible-navigator doc -t lookup file
+#
+# query plug-in vs. lookup plug-in
+# The lookup plugin puts all files' content in one big string."
+# The query plugin makes a list and puts each file's content in a list item."
+
+#
+#
+
+- name: 
+  hosts: localhost 
+  gather_facts: no
+  become: no
+  connection: local
+  tasks:
+
+
+  - name: "lookup file puts all files' content in one big string."
+    vars:
+      file_content: "{{ lookup('file', '/etc/hosts', '/etc/syslog.conf' ) }}"
+    debug:
+       msg: "file content: {{ file_content }}"
+
+  - name: "query file makes a list and puts each file's content in a list item."
+    vars:
+      file_content: "{{ query('file', '/etc/hosts', '/etc/syslog.conf' ) }}"
+    debug:
+       msg: "file content: {{ file_content }}"
+

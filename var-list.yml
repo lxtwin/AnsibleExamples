@@ -1,0 +1,84 @@
+---
+# list variable 
+# run 
+#   ansible-playbook var-list.yml
+#
+# An ordered sequence of items
+# For more list examples, see these playbooks. 
+# * var-dict-to-list.yml   - rearrange dictionaries into lists
+# * var-list-append.yml    - build a new list
+# * var-list-dict-list.yml - use a confusing data store, made of lists inside dicts inside a list inside a dict
+# * var-list-nested.yml    - read a list of lists
+# * var-list-to-simple.yml - copy values from a list
+# * var-list.yml           - an ordered sequence of items
+# * var-simple-to-list.yml - add values to a list
+
+# To find out more about list variables, see this documentation. 
+# https://docs.ansible.com/ansible/latest/user_guide/playbooks_variables.html#list-variables
+#
+
+- name: define and display a list variable
+  hosts: localhost 
+  gather_facts: no
+  become: no
+  connection: local
+  # define the list variable
+  vars:
+    list_variable: 
+    - a value
+    - another value
+    - a third value
+    # This is assumed to be an int (a number), not a str (a character in the alphabet)
+    - 2
+    # This is assumed to be a str (a character)
+    - "2"
+    #
+    # The same thing, written using JSON instead of YAML
+    json_list_variable: ["a value", "another value", "a third value", 2, "2"]
+    #
+    # Define an empty list (an array with no items) using square brackets.
+    an_empty_list: []
+
+  tasks:
+
+  - name: display the list variable content, using a jinja2 substitution 
+    debug: 
+      msg: "This is what a JSON array looks like: {{ list_variable }}"
+
+  - name: display one item in the list variable
+    debug: 
+      msg: "second value: {{ list_variable[1] }}"
+
+  - name: display the list variable content, using a loop
+    debug: 
+      msg: "value: {{ item }}"
+    loop: "{{ list_variable }}"
+
+  - name: same thing, but defined using JSON instead of YAML
+    debug: 
+      msg: "value: {{ item }}"
+    loop: "{{ json_list_variable }}"
+
+  - name: Loop with an empty list
+    debug: 
+      msg: "value: {{ item }}"
+    loop: "{{ an_empty_list }}"
+
+  - name: count items in a list
+    debug: 
+      msg: "count: {{ list_variable | length }}"
+
+
+# using "defined" with a list
+
+  - name: "This task runs because an_empty_list (an empty list is []) is defined."
+    debug: 
+      msg: An empty array is not the same as an undefined array.
+    when: 'an_empty_list is defined'
+
+  - name: This task only runs when "a_nonexistant_list" is defined. Which it isn't.
+    debug: 
+      msg: No such thing as a_nonexistant_list
+    when: 'a_nonexistant_list is defined'
+
+

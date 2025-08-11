@@ -1,0 +1,55 @@
+# The 'pause' waits for a few seconds.
+# run
+#   ansible-playbook -i inv-four-hosts-inventory.yml module-pause.yml
+#
+# The 'pause' module bypasses the host loop.
+# This means it runs once. It does not run once for every host.
+#
+# The default strategy is "linear". 
+# The first play uses the linear strategy.
+# The second play uses a different strategy, called "free".
+# You can't use pause with the free strategy.
+# See the playbook "play-strategy.yml" for more information.
+#
+
+- name: 
+  hosts: all
+  gather_facts: no
+  become: no
+  vars:
+    seconds: 2
+  tasks:
+
+  - name: "ansible pause runs once, so you see a {{ seconds }} second pause. It does not run on every machine."
+    pause: 
+      seconds: "{{ seconds }}"
+
+  - name: imitate pause using "sleep". This runs on every machine, so this task takes much longer.
+    command: 
+      cmd: "sleep {{ seconds }}"
+    changed_when: no
+
+
+
+# You can't use pause with strategy: free
+# This pause task causes this error.
+#  ERROR! The 'pause' module bypasses the host loop, which is currently not supported in the free strategy and would instead execute for every host in the inventory list.
+- name: 
+  hosts: all
+  gather_facts: no
+  become: no
+  strategy: free
+  tasks:
+
+  - debug:
+      msg: 'The pause task, combined with "strategy: free", causes an error.' 
+
+  - name: OS pause 
+    command: 
+      cmd: sleep 1
+    changed_when: no
+
+  - name: You see this sentence in the error message. This is the pause task.
+    pause: 
+      seconds: 1
+

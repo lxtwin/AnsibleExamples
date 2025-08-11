@@ -1,0 +1,116 @@
+---
+# set_fact module
+# run
+#   ansible-playbook -i inventory-static-inventory.yml module-set_fact.yml
+#
+# A fact is a variable containing data about a host. 
+# Facts are added to the current host's dictionary.
+# They are not visible to any other hosts. 
+# The first play sets some facts for host1.
+# The second play tries to view one of these facts and fails.
+#
+# If you want to copy a variable from one host to another, check out var-scope.yml
+# If you want to see all the facts ansible collects about a host, see play-gather_facts.yml
+#
+- name: set facts about host1
+  hosts: host1
+  gather_facts: no
+  become: no
+  connection: local
+  tasks:
+
+  - name: set a fact
+    ansible.builtin.set_fact:
+      my_var: my_val
+
+  - name: display the fact
+    ansible.builtin.debug:
+      var: my_var
+
+  - name: set a few facts
+    ansible.builtin.set_fact:
+      a_var: a value
+      a_list: 
+      - a
+      - b
+      - c
+      a_dict:
+        some_key: some value
+        another_key: another value
+        and_another: last one
+
+  - name: display facts
+    ansible.builtin.debug:
+      var: a_var
+  - ansible.builtin.debug:
+      var: a_list
+  - ansible.builtin.debug:
+      var: a_dict
+
+  - name: getting fancy with one set_fact task can lead to failure
+    ansible.builtin.set_fact:
+      original_var: a value
+      message: "<-- I copied this"
+      copy_var: "{{ original_var }} {{ message }}"
+    ignore_errors: yes
+
+  - name: Split into two set_fact tasks to succeed
+    ansible.builtin.set_fact:
+      original_var: a value
+      message: "<-- I copied this"
+  - ansible.builtin.set_fact:
+      copy_var: "{{ original_var }} {{ message }}"
+  - ansible.builtin.debug:
+      var: copy_var
+
+
+
+- name: Run on host2 and manage a fact about host1 set by the previous play
+  hosts: host2
+  gather_facts: no
+  become: no
+  connection: local
+  tasks:
+
+  - name: Display the my_var value. this fails with a "VARIABLE IS NOT DEFINED!" error.
+    ansible.builtin.debug:
+      var: my_var
+    ignore_errors: yes
+
+  - name: Try again with the magic hostvars variable
+    ansible.builtin.debug:
+      var: hostvars['host1']['my_var']
+
+  - name: Change host1's my_var value
+    ansible.builtin.set_fact:
+        my_var: I'm different
+    run_once: true
+    delegate_to: host1
+    delegate_facts: true
+
+  - name: Display the new my_var value
+    ansible.builtin.debug:
+      var: hostvars['host1']['my_var']
+
+
+
+- name: Set and view facts, all in this play
+  hosts: all
+  gather_facts: no
+  become: no
+  connection: local
+  tasks:
+
+  - name: Set a fact
+    ansible.builtin.set_fact:
+      my_var: "{{ 'I am ' + inventory_hostname }}"
+
+  - name: Display the my_var fact
+    ansible.builtin.debug:
+      var: my_var
+
+  - name: Display only host1's fact
+    ansible.builtin.debug:
+      var: hostvars['host1']['my_var']
+
+
